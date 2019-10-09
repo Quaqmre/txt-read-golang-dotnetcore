@@ -18,10 +18,9 @@ namespace cSharpTxtRead
 
 
 
-            Parallel.ForEach(x, (v, _) =>
-            // foreach (var v in x)
+            Parallel.ForEach(x, (v, _) => // Using for async execution
+            // foreach (var v in x) // Uncomment for the syncrinos execution
             {
-                System.Console.WriteLine(Environment.CurrentManagedThreadId);
                 string text = System.IO.File.ReadAllText(v);
                 var split = text.Split(" ");
 
@@ -43,7 +42,9 @@ namespace cSharpTxtRead
                 // }
             });
             stopwatch.Stop();
-            System.Console.WriteLine(stopwatch.ElapsedMilliseconds);
+            System.Console.WriteLine("Async");
+            System.Console.WriteLine(stopwatch.ElapsedMilliseconds / 1000 + "s");
+            System.Console.WriteLine(totalWords["is"]);
 
         }
     }
