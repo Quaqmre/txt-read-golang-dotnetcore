@@ -1,0 +1,56 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
+
+namespace cSharpTxtRead
+{
+    class Program
+    {
+        static Dictionary<string, int> totalWords = new Dictionary<string, int>();
+        static async Task Main(string[] args)
+        {
+            Func<string, object, Task> body;
+            var options = new ExecutionDataflowBlockOptions()
+            {
+                MaxDegreeOfParallelism = DataflowBlockOptions.Unbounded
+            };
+
+            var block = new ActionBlock<string>(ForAsync, options);
+            System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+            object locker = new object();
+            var dir = "C:\\Users\\mehmetakif.tatar\\Desktop\\Proje\\txtReadPerform\\txt-repo";
+            var x = Directory.GetFiles(dir);
+
+            foreach (var v in x)
+            {
+                block.Post(v);
+            }
+            block.Completion.Wait();
+            stopwatch.Stop();
+            System.Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
+        }
+        public static Task ForAsync(string path)
+        {
+            System.Console.WriteLine(Environment.CurrentManagedThreadId);
+            string text = System.IO.File.ReadAllText(path);
+            var split = text.Split(" ");
+
+            foreach (var item in split)
+            {
+                if (totalWords.ContainsKey(item))
+                {
+                    totalWords[item] = totalWords[item] + 1;
+                }
+                else
+                {
+                    totalWords[item] = 1;
+                }
+            }
+            return Task.CompletedTask;
+        }
+    }
+}
